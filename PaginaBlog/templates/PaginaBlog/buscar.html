@@ -20,6 +20,7 @@
                     <strong>Autor:</strong> {{ item.autor.nombre }}<br>
                     <strong>Categoría:</strong> {{ item.categoria.nombre }}<br>
                     <strong>Fecha:</strong> {{ item.fecha }}
+                    <p><strong>Contenido:</strong> {{ item.contenido|truncatechars:100 }}</p>
                 {% endif %}
             </li>
         {% endfor %}
