@@ -29,6 +29,34 @@
                 <li class="sidebar-nav-item"><a href="{% url 'BuscarAutor' %}">Buscar Autor</a></li>
                 <li class="sidebar-nav-item"><a href="{% url 'BuscarCategoria' %}">Buscar Categoría</a></li>
                 <li class="sidebar-nav-item"><a href="{% url 'BuscarPost' %}">Buscar Post</a></li>
+                <li class="sidebar-nav-item">
+            
+                
+                <a href="{% url 'AgregarAvatar' %}">
+                <button>Crea tu avatar</button>
+                </a>
+
+                {% if user.is_authenticated %}
+                <p>Bienvenido, {{ user.username }}</p>
+
+                <form action="{% url 'Logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Cerrar sesión</button>
+                </form>
+
+                <a href="{% url 'EditarPerfil' %}">
+                <button type="button">Editar perfil</button>
+                </a>
+                {% else %}
+                <a href="{% url 'Login' %}">
+                <button type="button">Iniciar sesión</button>
+                </a>
+
+                <a href="{% url 'Register' %}">
+                <button type="button">Registrarse</button>
+                </a>
+                {% endif %}
+
             </ul>
         </nav>
         <!-- Header-->
