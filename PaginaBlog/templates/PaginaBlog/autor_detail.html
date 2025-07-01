@@ -1,0 +1,8 @@
+{% extends 'PaginaBlog/index.html' %}
+{% block title %}Detalle Autor{% endblock %}
+
+{% block contenido %}
+  <h2>Detalle del Autor</h2>
+  <p><strong>Nombre:</strong> {{ autor.nombre }}</p>
+  <p><strong>Email:</strong> {{ autor.email }}</p>
+{% endblock %}

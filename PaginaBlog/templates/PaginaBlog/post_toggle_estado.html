@@ -1,0 +1,22 @@
+{% extends 'PaginaBlog/index.html' %}
+{% block title %}Cambiar Estado del Post{% endblock %}
+
+{% block contenido %}
+<div class="container mt-4">
+    <h2>Cambiar estado del post</h2>
+
+    <p><strong>Título:</strong> {{ post.titulo }}</p>
+    <p><strong>Estado actual:</strong> {{ post.estado }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="estado">Nuevo estado:</label>
+        <select name="estado" id="estado" class="form-select w-25">
+            <option value="publicado" {% if post.estado == 'publicado' %}selected{% endif %}>Publicado</option>
+            <option value="borrador" {% if post.estado == 'borrador' %}selected{% endif %}>Borrador</option>
+        </select>
+        <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+        <a href="{% url 'BuscarPost' %}" class="btn btn-secondary mt-3">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

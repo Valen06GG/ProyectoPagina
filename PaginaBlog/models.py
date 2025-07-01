@@ -21,16 +21,22 @@ class Post(models.Model):
     autor = models.ForeignKey('Autor', on_delete=models.CASCADE)
     categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE)
 
+    estados = [
+        ('Publicado', 'Publicado'),
+        ('Borrador', 'Borrador'),
+    ]
+    estado = models.CharField(max_length=10, choices=estados, default='Borrador')
+
     def __str__(self):
         return self.titulo
     
+from django.contrib.auth.models import User
 
 class Avatar(models.Model):
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  
-    
-    imagen = models.ImageField(upload_to='avatares/', null=True, blank = True)
+   
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    imagen = models.ImageField(upload_to='avatar', null=True, blank = True)
 
     def __str__(self):
-     return f"Avatar de {self.user.username}"
+        return f"{self.user} - {self.imagen}"
 

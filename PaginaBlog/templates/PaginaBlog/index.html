@@ -30,33 +30,38 @@
                 <li class="sidebar-nav-item"><a href="{% url 'BuscarAutor' %}">Buscar Autor</a></li>
                 <li class="sidebar-nav-item"><a href="{% url 'BuscarCategoria' %}">Buscar Categoría</a></li>
                 <li class="sidebar-nav-item"><a href="{% url 'BuscarPost' %}">Buscar Post</a></li>
-                <li class="sidebar-nav-item">
-            
+        
+            {% if request.user.is_authenticated and avatar %}
+                  <img src="{{ avatar.imagen.url }}" 
+                  alt="avatar" 
+                  class="rounded-circle" 
+                  style="width: 70px; height: 70px;" />
+               
+
+                  <p class="text-muted mb-">Hola, {{ user.username }}!!!.</p>
+
+                  <form action="{% url 'Logout' %}" method="post" class="mb-0">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-danger btn-sm">Cerrar Sesion</button>
+                  </form>
+             {% endif %}
+
+                    {% if user.is_authenticated %}
+                    <p>Bienvenido, {{ user.username }}</p>
+    
+                    <a href="{% url 'EditarPerfil' %}">
+                    <button type="button">Editar perfil</button>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'Login' %}">
+                    <button type="button">Iniciar sesión</button>
+                    </a>
+    
+                    <a href="{% url 'Register' %}">
+                    <button type="button">Registrarse</button>
+                    </a>
+                    {% endif %}
                 
-                <a href="{% url 'AgregarAvatar' %}">
-                <button>Crea tu avatar</button>
-                </a>
-
-                {% if user.is_authenticated %}
-                <p>Bienvenido, {{ user.username }}</p>
-
-                <form action="{% url 'Logout' %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit">Cerrar sesión</button>
-                </form>
-
-                <a href="{% url 'EditarPerfil' %}">
-                <button type="button">Editar perfil</button>
-                </a>
-                {% else %}
-                <a href="{% url 'Login' %}">
-                <button type="button">Iniciar sesión</button>
-                </a>
-
-                <a href="{% url 'Register' %}">
-                <button type="button">Registrarse</button>
-                </a>
-                {% endif %}
 
             </ul>
         </nav>
@@ -64,15 +69,16 @@
          
         <header class="masthead d-flex align-items-center">
             <div class="container px-4 px-lg-5 text-center">
-                <h1 class="mb-1">Hola, esta es mi Pagina</h1>
-                <h3 class="mb-5"><em>Aca podes buscar categorias, post, y autores</em></h3>
-                <a class="btn btn-primary btn-xl" href="#about">Click aca para ir mas abajo</a>
-            <section class="content-section" id="contenido">
+                <h1 class="mb-1">Hola, esta es mi Página</h1>
+                <h3 class="mb-5"><em>Acá podés buscar categorías, post, y autores</em></h3>
+                <a class="btn btn-primary btn-xl" href="#about">Click aca para ir más abajo</a>
+
+                <section class="content-section" id="contenido">
         <div class="container px-4 px-lg-5 text-center">
             {% block contenido %}{% endblock %}
             </div>
             </section>
-        </div>
+            </div>
         </header>
         <!-- About-->
         <section class="content-section bg-light">

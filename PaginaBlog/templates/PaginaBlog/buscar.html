@@ -14,24 +14,54 @@
     <h3 class="mb-3">Resultados:</h3>
     <ul class="list-group text-start">
         {% for item in resultados %}
-            <li class="list-group-item">
-                {% if tipo == 'post' %}
-                    <strong>Título:</strong> {{ item.titulo }}<br>
-                    <strong>Autor:</strong> {{ item.autor.nombre }}<br>
-                    <strong>Categoría:</strong> {{ item.categoria.nombre }}<br>
-                    <strong>Fecha:</strong> {{ item.fecha }}
-                    <p><strong>Contenido:</strong> {{ item.contenido|truncatechars:100 }}</p>
-                {% endif %}
-            </li>
-        {% endfor %}
-        {% for item in resultados %}
-            <li class="list-group-item">
-                {% if tipo == 'autor' %}
-                    <strong>Nombre:</strong> {{ item.nombre }}<br>
-                    <strong>Email:</strong> {{ item.email }}
-                {% elif tipo == 'categoria' %}
-                    <strong>Nombre de Categoría:</strong> {{ item.nombre }}
-                {% endif %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    {% if tipo == 'post' %}
+                        <strong>Título:</strong> {{ item.titulo }}<br>
+                        <strong>Autor:</strong> {{ item.autor.nombre }}<br>
+                        <strong>Categoría:</strong> {{ item.categoria.nombre }}<br>
+                        <strong>Fecha:</strong> {{ item.fecha }}<br>
+                        <strong>Estado:</strong> {{ item.estado }}
+                        <p><strong>Contenido:</strong> {{ item.contenido|truncatechars:100 }}</p>
+
+                    {% elif tipo == 'autor' %}
+                        <strong>Nombre:</strong> {{ item.nombre }}<br>
+                        <strong>Email:</strong> {{ item.email }}
+
+                    {% elif tipo == 'categoria' %}
+                        <strong>Nombre de Categoría:</strong> {{ item.nombre }}
+                    {% endif %}
+                </div>
+
+                <div class="d-flex flex-column gap-1 mt-2">
+                    <!-- Ver más -->
+                    {% if tipo == 'post' %}
+                        <a href="{% url 'post_detail' item.id %}" class="btn btn-sm btn-info">Ver más</a>
+                    {% elif tipo == 'autor' %}
+                        <a href="{% url 'autor_detail' item.id %}" class="btn btn-sm btn-info">Ver más</a>
+                    {% elif tipo == 'categoria' %}
+                        <a href="{% url 'categoria_detail' item.id %}" class="btn btn-sm btn-info">Ver más</a>
+                    {% endif %}
+
+                    <!-- Cambiar estado (solo para post) -->
+                    {% if tipo == 'post' %}
+                        <a href="{% url 'post_toggle_estado' item.id %}" class="btn btn-sm btn-warning">Cambiar estado</a>
+                    {% endif %}
+
+                    <!-- Eliminar -->
+                    <form method="post" action="
+                        {% if tipo == 'post' %}
+                            {% url 'post_delete' item.id %}
+                        {% elif tipo == 'autor' %}
+                            {% url 'autor_delete' item.id %}
+                        {% elif tipo == 'categoria' %}
+                            {% url 'categoria_delete' item.id %}
+                        {% endif %}
+                    ">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-danger mt-1">Eliminar</button>
+                    </form>
+                </div>
             </li>
         {% endfor %}
     </ul>

@@ -1,31 +1,26 @@
-from django.shortcuts import render, redirect
-
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
 from django.contrib.auth import login, logout, authenticate
 from .models import Post, Categoria, Autor, Avatar
-from .forms import AutorForm, CategoriaForm, PostForm, BusquedaPostForm, BusquedaCategoriaForm, BusquedaAutorForm, UserEditForm, AvatarFormulario, AvatarForm
+from .forms import AutorForm, CategoriaForm, PostForm, BusquedaPostForm, BusquedaCategoriaForm, BusquedaAutorForm, UserEditForm, AvatarForm, UserRegisterForm
 from django.urls import reverse
 
 @login_required
 def inicio(request):
 
-        avatares = Avatar.objects.filter(user=request.user.id)
+        avatar = Avatar.objects.filter(user=request.user.id)
 
-        if avatares.exists():
-            url = avatares[0].imagen.url
-
-        else:
-            url = None 
-  
-        return render(request, 'PaginaBlog/index.html', {"url": url})
+        return render(request, 'PaginaBlog/index.html')
 
 def crear_autor(request):
     if request.method == "POST":
         form = AutorForm(request.POST)
         if form.is_valid():
             form.save()
+            return redirect('Inicio')
     else:
         form = AutorForm()
     return render(request, 'PaginaBlog/formulario.html', {'form': form, 'titulo': 'Crear Autor'})
@@ -35,6 +30,7 @@ def crear_categoria(request):
         form = CategoriaForm(request.POST)
         if form.is_valid():
             form.save()
+            return redirect('Inicio')
     else:
         form = CategoriaForm()
     return render(request, 'PaginaBlog/formulario.html', {'form': form, 'titulo': 'Crear Categoría'})
@@ -44,6 +40,7 @@ def crear_post(request):
         form = PostForm(request.POST)
         if form.is_valid():
             form.save()
+            return redirect('Inicio')
     else:
         form = PostForm()
     return render(request, 'PaginaBlog/formulario.html', {'form': form, 'titulo': 'Crear Post'})
@@ -111,79 +108,103 @@ def login_request(request):
             if user is not None:
                 login(request, user)
 
-                return render(request, 'PaginaBlog/index.html', {"mensaje":f"Bienvenido {usuario}"} )
-        
-            else:
-                return render(request, 'PaginaBlog/index.html', {"mensaje":"Error datos incorrectos"} )
+                return redirect('Inicio')
         
         else:
-                return render(request, 'PaginaBlog/index.html', {"mensaje":"Error, formulario erroneo"} )
+                messages.error(request, "Usuario o Contraseña invalidos")
 
     form = AuthenticationForm()
     return render(request, 'PaginaBlog/login.html', {'form':form} )
 
 @login_required
 def editarPerfil(request):
-
     usuario = request.user
 
-    if request.method == 'POST':
-        miFormulario = UserEditForm(request.POST)
-        if miFormulario.is_valid():
+    if request.method == "POST":
+        mi_formulario = UserEditForm(request.POST, instance=usuario)
+        if mi_formulario.is_valid():
+            informacion = mi_formulario.cleaned_data
 
-            informacion = miFormulario.cleaned_data
+            if informacion.get('password1', '') != '':
+                if informacion['password1'] == informacion.get('password2', ''):
+                    usuario.set_password(informacion['password1'])
+                else:
+                    mi_formulario.add_error('password2', 'Las contraseñas no coinciden')
+                    return render(request, "PaginaBlog/editarPerfil.html", {"formulario": mi_formulario})
 
-            usuario.email = informacion['email']
-            usuario.password1 = informacion['password1']
-            usuario.password2 = informacion['password1']
-            usuario.save()
+            mi_formulario.save()
             return redirect('Inicio')
-
     else:
-        miFormulario= UserEditForm(initial={ 'email':usuario.email})
+        mi_formulario = UserEditForm(instance=usuario)
 
+    return render(request, "PaginaBlog/editarPerfil.html", {"formulario": mi_formulario})
 
-    return render(request, 'PaginaBlog/editarPerfil.html', {'miFormulario':miFormulario, 'usuario':usuario}) 
+def registro(request):
 
+      if request.method == 'POST':
 
-@login_required
-def agregarAvatar(request):
-    
-    miFornulario = AvatarFormulario(request.POST, request.FILES)
+            form = UserRegisterForm(request.POST)
+            if form.is_valid():
 
-    if miFornulario.is_valid():
+                  username = form.cleaned_data['username']
+                  form.save()
+                  return render(request,"PaginaBlog/index.html" ,  {"mensaje":"Usuario Creado :)"})
 
-        u = User.objects.get(username=request.user)
+      else:                  
+            form = UserRegisterForm()     
 
-        avatar = Avatar (user=u, imagen=miFornulario.cleaned_data)
-
-        avatar.save()
-
-        return render(request, "PaginaBlog/index.html")
-    
-    else:
-
-        miFornulario= AvatarFormulario()
-        avatar = Avatar.objects.filter(user=request.user).first()
-    return render(request, 'PaginaBlog/agregarAvatar.html', {'avatar': avatar})
+      return render(request,"PaginaBlog/registro.html" ,  {"form":form})
 
 @login_required
 def upload_avatar(request):
+    avatar = Avatar.objects.filter(user=request.user.id).first()
     if request.method == 'POST':
-        form = AvatarForm(request.POST, request.FILES, instance=request.user.avatar)
+        form = AvatarForm(request.POST, request.FILES, instance=avatar)
         if form.is_valid():
+            avatar = form.save(commit=False)
+            avatar.user = request.user
             form.save()
-            return redirect('profile')
+            return redirect('Inicio')
     else:
-        form = AvatarForm(instance=request.user.avatar)
-    return render(request, 'upload_avatar.html', {'form': form})
+        form = AvatarForm(instance=avatar)
+    return render(request, 'PaginaBlog/upload_avatar.html', {'form': form})
 
-def registro(request):
+@login_required
+def post_toggle_estado(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('Login')  # Redirige al login después de registrar
-    else:
-        form = UserCreationForm()
-    return render(request, 'PaginaBlog/registro.html', {'form': form})
+        nuevo_estado = request.POST.get('estado')
+        if nuevo_estado in ['publicado', 'borrador']:
+            post.estado = nuevo_estado
+            post.save()
+            return redirect('BuscarPost')  
+
+    return render(request, 'PaginaBlog/post_toggle_estado.html', {'post': post})
+
+def autor_detail(request, pk):
+    autor = get_object_or_404(Autor, pk=pk)
+    return render(request, 'PaginaBlog/autor_detail.html', {'autor': autor})
+
+def autor_delete(request, pk):
+    autor = get_object_or_404(Autor, pk=pk)
+    autor.delete()
+    return redirect('BuscarAutor')
+
+def post_delete(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.delete()
+    return redirect('BuscarPost')
+
+def categoria_delete(request, pk):
+    categoria = get_object_or_404(Categoria, pk=pk)
+    categoria.delete()
+    return redirect('BuscarCategoria')
+
+def categoria_detail(request, pk):
+    categoria = get_object_or_404(Categoria, pk=pk)
+    return render(request, 'PaginaBlog/categoria_detail.html', {'categoria': categoria})
+
+def post_detail(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    return render(request, 'PaginaBlog/post_detail.html', {'post': post})

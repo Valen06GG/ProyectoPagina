@@ -1,16 +1,35 @@
 {% extends 'PaginaBlog/index.html' %}
+{% load static %}
 
 {% block title %}Registro{% endblock %}
 
 {% block contenido %}
-<h2>Registro de usuario</h2>
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
 
-<form method="POST" action="">
-    {% csrf_token %}
-    {{ form.as_p }}
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title text-center mb-4">
+                        Registro de Usuario
+                    </h4>
+                    
 
-    <button type="submit">Registrarse</button>
-</form>
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.as_p }}
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Registrate!</button>
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
 
-<p>¿Ya tenés cuenta? <a href="{% url 'Login' %}">Iniciá sesión</a></p>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

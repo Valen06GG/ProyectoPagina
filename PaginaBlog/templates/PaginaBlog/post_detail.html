@@ -1,0 +1,11 @@
+{% extends 'PaginaBlog/index.html' %}
+{% block title %}Detalle del Post{% endblock %}
+
+{% block contenido %}
+<h2>{{ post.titulo }}</h2>
+<p><strong>Autor:</strong> {{ post.autor.nombre }}</p>
+<p><strong>Categoría:</strong> {{ post.categoria.nombre }}</p>
+<p><strong>Fecha:</strong> {{ post.fecha }}</p>
+<p><strong>Estado:</strong> {{ post.estado }}</p>
+<p>{{ post.contenido }}</p>
+{% endblock %}
