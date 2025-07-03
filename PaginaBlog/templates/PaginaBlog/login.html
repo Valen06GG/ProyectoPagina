@@ -14,11 +14,28 @@
                         Login
                     </h4>
                     
+                    {% if form.errors %}
+                        <div class="alert alert-danger" role="alert">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
-                    <form method="post" class="needs-validation" novalidate>
+                        <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         <div class="mb-3">
-                            {{ form.as_p }}
+                            <label for="id_username" class="form-label">Usuario:</label>
+                             {{ form.username }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">Contraseña:</label>
+                            {{ form.password }}
                         </div>
                         <div class="text-center d-flex justify-content-center gap-2">
                             <button type="submit" class="btn btn-primary">Iniciar sesión</button>

@@ -2,9 +2,19 @@
 
 {% block contenido %}
 <h2>Editar Perfil</h2>
-<form method="post">
+<form method="post" class="needs-validation">
     {% csrf_token %}
     {{ formulario.as_p }}
-    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+
+    {% if avatar %}
+        <a href="{% url 'upload_avatar' %}" class="btn btn-outline-primary">Editar Avatar</a>
+    {% else %}
+        <a href="{% url 'upload_avatar' %}" class="btn btn-outline-primary">Crear Avatar</a>
+    {% endif %}
+
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <button type="submit" class="btn btn-outline-success">Guardar cambios</button>
+        <a href="{% url 'Inicio' %}" class="btn btn-outline-danger">Cancelar</a>
+    </div>
 </form>
 {% endblock %}

@@ -1,35 +1,26 @@
 {% extends 'PaginaBlog/index.html' %}
-{% load static %}
-
-{% block title %}Perfil{% endblock %}
 
 {% block contenido %}
 <div class="container mt-5 mb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
+    <h2>Subir o Cambiar Avatar</h2>
 
-            <div class="card shadow">
-                <div class="card-body">
-                    <h4 class="card-title text-center mb-4">
-                        Subir Avatar
-                    </h4>
-                    
+    <form method="post" enctype="multipart/form-data" class="needs-validation">
+        {% csrf_token %}
+        {{ form.as_p }}
 
-                    <form method="post"  enctype="multipart/form-data" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            {{ form.as_p }}
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
-                        </div>
-                    </form>
-                    
-                </div>
+        {% if avatar and avatar.imagen %}
+            <div class="text-center mt-3">
+                <img src="{{ avatar.imagen.url }}" alt="Avatar" class="rounded-circle mb-3" style="width: 150px; height: 150px;">
+                <p>Imagen actual</p>
             </div>
+        {% else %}
+            <p>No tienes un avatar asignado.</p>
+        {% endif %}
 
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <button type="submit" class="btn btn-outline-success">Actualizar Avatar</button>
+            <a href="{% url 'EditarPerfil' %}" class="btn btn-outline-danger">Cancelar</a>
         </div>
-    </div>
+    </form>
 </div>
-
 {% endblock %}

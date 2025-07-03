@@ -1,0 +1,22 @@
+{% extends 'PaginaBlog/index.html' %}
+{% block title %}Posts de {{ autor.nombre }}{% endblock %}
+
+{% block contenido %}
+<h2 class="mb-4">Posts de {{ autor.nombre }}</h2>
+
+{% if posts %}
+    <ul class="list-group">
+        {% for post in posts %}
+            <li class="list-group-item">
+            <strong>Título:</strong> {{ post.titulo }}<br>
+            <strong>Categoría:</strong> {{ post.categoria.nombre }}<br>
+            <strong>Fecha:</strong> {{ post.fecha|date:"F j, Y" }}<br>
+            {{ post.contenido|linebreaksbr }}
+            <a href="{% url 'post_detail' post.id %}" class="btn btn-primary btn-sm mt-2">Ir a ese post</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-muted">Este autor no tiene posts aún.</p>
+{% endif %}
+{% endblock %}

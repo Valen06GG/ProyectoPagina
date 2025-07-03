@@ -6,9 +6,14 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, User
 from django.contrib.auth import login, logout, authenticate
 from .models import Post, Categoria, Autor, Avatar
 from .forms import AutorForm, CategoriaForm, PostForm, BusquedaPostForm, BusquedaCategoriaForm, BusquedaAutorForm, UserEditForm, AvatarForm, UserRegisterForm
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import DeleteView, UpdateView
+from django.views.generic import ListView
 
-@login_required
+
 def inicio(request):
 
         avatar = Avatar.objects.filter(user=request.user.id)
@@ -110,15 +115,15 @@ def login_request(request):
 
                 return redirect('Inicio')
         
-        else:
-                messages.error(request, "Usuario o Contraseña invalidos")
+    else:
+        form = AuthenticationForm()
 
-    form = AuthenticationForm()
     return render(request, 'PaginaBlog/login.html', {'form':form} )
 
 @login_required
 def editarPerfil(request):
     usuario = request.user
+    avatar = Avatar.objects.filter(user=usuario).first()
 
     if request.method == "POST":
         mi_formulario = UserEditForm(request.POST, instance=usuario)
@@ -130,14 +135,20 @@ def editarPerfil(request):
                     usuario.set_password(informacion['password1'])
                 else:
                     mi_formulario.add_error('password2', 'Las contraseñas no coinciden')
-                    return render(request, "PaginaBlog/editarPerfil.html", {"formulario": mi_formulario})
+                    return render(request, "PaginaBlog/editarPerfil.html", {
+                        "formulario": mi_formulario,
+                        "avatar": avatar  
+                    })
 
             mi_formulario.save()
             return redirect('Inicio')
     else:
         mi_formulario = UserEditForm(instance=usuario)
 
-    return render(request, "PaginaBlog/editarPerfil.html", {"formulario": mi_formulario})
+    return render(request, "PaginaBlog/editarPerfil.html", {
+        "formulario": mi_formulario,
+        "avatar": avatar  
+    })
 
 def registro(request):
 
@@ -148,7 +159,7 @@ def registro(request):
 
                   username = form.cleaned_data['username']
                   form.save()
-                  return render(request,"PaginaBlog/index.html" ,  {"mensaje":"Usuario Creado :)"})
+                  return render(request,"PaginaBlog/index.html")
 
       else:                  
             form = UserRegisterForm()     
@@ -169,42 +180,99 @@ def upload_avatar(request):
         form = AvatarForm(instance=avatar)
     return render(request, 'PaginaBlog/upload_avatar.html', {'form': form})
 
-@login_required
-def post_toggle_estado(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
 
-    if request.method == 'POST':
+class PostToggleEstadoView(LoginRequiredMixin, View):
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        return render(request, 'PaginaBlog/post_estado.html', {'post': post})
+
+    def post(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
         nuevo_estado = request.POST.get('estado')
         if nuevo_estado in ['publicado', 'borrador']:
             post.estado = nuevo_estado
             post.save()
-            return redirect('BuscarPost')  
+        return redirect('BuscarPost')
+    
+class AutorDetailView(DetailView):
+    model = Autor
+    template_name = 'PaginaBlog/autor_detail.html'
+    context_object_name = 'autor'
 
-    return render(request, 'PaginaBlog/post_toggle_estado.html', {'post': post})
+class CategoriaDetailView(DetailView):
+    model = Categoria
+    template_name = 'PaginaBlog/categoria_detail.html'
+    context_object_name = 'categoria'
 
-def autor_detail(request, pk):
-    autor = get_object_or_404(Autor, pk=pk)
-    return render(request, 'PaginaBlog/autor_detail.html', {'autor': autor})
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'PaginaBlog/post_detail.html'
+    context_object_name = 'post'
 
-def autor_delete(request, pk):
-    autor = get_object_or_404(Autor, pk=pk)
-    autor.delete()
-    return redirect('BuscarAutor')
+class AutorDeleteView(LoginRequiredMixin, DeleteView):
+    model = Autor
+    success_url = reverse_lazy('BuscarAutor')
 
-def post_delete(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    post.delete()
-    return redirect('BuscarPost')
+class PostDeleteView(LoginRequiredMixin, DeleteView):
+    model = Post
+    success_url = reverse_lazy('BuscarPost')
 
-def categoria_delete(request, pk):
-    categoria = get_object_or_404(Categoria, pk=pk)
-    categoria.delete()
-    return redirect('BuscarCategoria')
+class CategoriaDeleteView(LoginRequiredMixin, DeleteView):
+    model = Categoria
+    success_url = reverse_lazy('BuscarCategoria')
 
-def categoria_detail(request, pk):
-    categoria = get_object_or_404(Categoria, pk=pk)
-    return render(request, 'PaginaBlog/categoria_detail.html', {'categoria': categoria})
+class PostEditarView(LoginRequiredMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'PaginaBlog/editar_post.html'
+    success_url = reverse_lazy('BuscarPost')
 
-def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    return render(request, 'PaginaBlog/post_detail.html', {'post': post})
+class AutorEditarView(LoginRequiredMixin, UpdateView):
+    model = Autor
+    form_class = AutorForm
+    template_name = 'PaginaBlog/editar_autor.html'
+    success_url = reverse_lazy('BuscarAutor')
+
+class CategoriaEditarView(LoginRequiredMixin, UpdateView):
+    model = Categoria
+    form_class = CategoriaForm
+    template_name = 'PaginaBlog/editar_categoria.html'
+    success_url = reverse_lazy('BuscarCategoria')
+
+class PostsPorAutorView(ListView):
+    model = Post
+    template_name = 'PaginaBlog/posts_por_autor.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        self.autor = get_object_or_404(Autor, id=self.kwargs['autor_id'])
+        return Post.objects.filter(autor=self.autor)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['autor'] = self.autor
+        return context
+    
+def About(request):
+    return render(request, 'PaginaBlog/About_me.html')
+        
+def Perfil(request):
+    avatar = Avatar.objects.filter(user=request.user).first()
+    return render(request, 'PaginaBlog/Perfil.html', {
+        'usuario': request.user,
+        'avatar': avatar
+    })
+@login_required
+def editar_avatar(request):
+    avatar = Avatar.objects.filter(user=request.user).first()
+    
+    if request.method == 'POST':
+        form = AvatarForm(request.POST, request.FILES, instance=avatar)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Avatar actualizado correctamente.')
+            return redirect('editarPerfil')  # Redirige después de guardar el avatar
+    else:
+        form = AvatarForm(instance=avatar)
+
+    return render(request, 'PaginaBlog/editar_avatar.html', {'form': form, 'avatar': avatar})

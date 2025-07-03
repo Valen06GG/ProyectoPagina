@@ -1,0 +1,12 @@
+{% extends 'PaginaBlog/index.html' %}
+{% block title %}Editar Post{% endblock %}
+
+{% block contenido %}
+  <h2>Editar Post</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a href="{% url 'CrearPost' %}?tipo=post" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

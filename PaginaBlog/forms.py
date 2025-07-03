@@ -21,6 +21,7 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = '__all__'
+      
 
 class BusquedaAutorForm(forms.Form):
     nombre = forms.CharField(label="Nombre del Autor", max_length=100, required=False)
@@ -33,6 +34,12 @@ class BusquedaPostForm(forms.Form):
 
 class UserEditForm(UserChangeForm):
     password = None
+    
+    
+    username = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
 
     password = forms.CharField(label="password", widget=forms.PasswordInput, required=False)
     password_confirm = forms.CharField(label="password confirm", widget=forms.PasswordInput, required=False)
@@ -40,7 +47,8 @@ class UserEditForm(UserChangeForm):
 
     class Meta:
         model = User
-        fields = [ 'username', 'email', 'last_name', 'first_name' ]
+        fields = [ 'username', 'email', 'last_name', 'first_name']
+        
 
     def clean(self):
         cleaned_data = super().clean()
@@ -81,7 +89,7 @@ def login_view(request):
 
             if user is not None:
                 login(request, user)
-                return redirect('inicio')  # Login exitoso
+                return redirect('inicio')
             else:
                 messages.error(request, 'Usuario o contraseña incorrectos')
     else:
@@ -94,8 +102,11 @@ class AvatarForm(forms.ModelForm):
 
     class Meta:
         model = Avatar
-        fields = ['imagen']
-
+        fields = ['imagen','birthdate']
+        widgets = {
+            'birthdate': forms.DateInput(attrs={'type': 'date'}),
+        }
+        
 
 class UserRegisterForm(UserCreationForm):
     email = forms.EmailField()

@@ -1,0 +1,21 @@
+{% extends 'PaginaBlog/index.html' %}
+{% block title %}Perfil{% endblock %}
+
+{% block contenido %}
+<div class="container text-center mt-5">
+    <h2>Perfil de {{ usuario.username }}</h2>
+
+    {% if avatar %}
+        <img src="{{ avatar.imagen.url }}" alt="Avatar" class="rounded-circle mb-3" style="width: 100px; height: 100px;">
+        <p>Tu Avatar</p>
+    {% endif %}
+    
+    <a href="https://github.com/Valen06GG/ProyectoPagina">https://github.com/Valen06GG/ProyectoPagina</a>
+    <p><strong>Fecha de Cumpleaños:</strong> {{ avatar.birthdate|date:"d/m/Y" }}</p>
+    <p><strong>Email:</strong> {{ usuario.email }}</p>
+    <p><strong>Nombre:</strong> {{ usuario.first_name }}</p>
+    <p><strong>Apellido:</strong> {{ usuario.last_name }}</p>
+
+    <a href="{% url 'EditarPerfil' %}" class="btn btn-outline-info mt-3">Editar Perfil</a>
+</div>
+{% endblock %}
