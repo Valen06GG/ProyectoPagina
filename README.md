@@ -78,3 +78,38 @@
 # ├── urls.py
 # ├── wsgi.py
 # manage.py
+# requirements.txt
+
+# Requisitos:
+# Python 3.11 
+# pip
+
+# Clonar el repositorio:
+# Yo lo hago desde la powershell pero dejo el proceso:
+#     
+#     git clone "carpetas correspondientes donde seencuentra el proyecto/ProyectoPagina"
+#     cd /ProyectoPagina/
+#     code.
+
+# activar un entorno virtual:
+# python -m venv .venv
+# source .venv/bin/activate  # Para Windows: .venv\Scripts\activate
+
+# Instalar dependencias:
+# pip install -r requirements.txt
+
+# Configuracion:
+# Hacer la migracion:   python manage.py migrate
+ 
+# Crear un superusuario:
+# python manage.py createsuperuser
+
+# Levantar el servidor:
+# python manage.py runserver
+# Proyecto disponible en http://127.0.0.1:8000/PaginaBlog/
+
+# Para agregar nuevas apps:
+# python manage.py startapp nombre_app
+
+# Para entrar al panel de administración:
+# http://127.0.0.1:8000/admin/
